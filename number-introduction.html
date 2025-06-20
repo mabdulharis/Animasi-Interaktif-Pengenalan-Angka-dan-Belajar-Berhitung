@@ -34,7 +34,7 @@
         left: 1rem;
         width: 250px;
         height: auto;
-        z-index: 0;
+        z-index: 10;
         animation: swayTreeLeft 4s ease-in-out infinite alternate;
         transform-origin: bottom center;
         user-select: none;
@@ -51,7 +51,7 @@
         top: 1rem;
         width: 200px;
         height: auto;
-        z-index: 0;
+        z-index: 10;
         user-select: none;
         pointer-events: none;
         animation: moveCloudLeft 30s linear infinite;
@@ -105,6 +105,7 @@
         color: #1e3a8a; /* Tailwind blue-900 for strong contrast */
         user-select: none;
         text-align: center;
+        z-index: 20;
       }
       h1 {
         font-weight: 700;
@@ -171,7 +172,6 @@
         box-shadow: 0 0 0 4px #86efac, 0 12px 20px rgb(22 163 74 / 0.6);
         transform: translateY(-3px);
       }
-      /* Removed #number-image since no longer used */
 
       /* New back button style */
       .back-button {
@@ -219,6 +219,14 @@
         }
         .back-button i {
           font-size: 1.4rem;
+        }
+        /* On mobile, put clouds and trees behind container */
+        .cloud, .tree {
+          z-index: 0 !important;
+        }
+        .container {
+          z-index: 20 !important;
+          position: relative !important;
         }
       }
       /* Container for fruit images */
@@ -354,6 +362,15 @@
  </head>
  <body>
   <div class="background">
+   <!-- Multiple clouds moving right to left -->
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c1" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c2" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c3" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c4" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c5" src="images/cloud2.png"/>
+   <!-- Trees -->
+   <img alt="A tall green leafy tree with a brown trunk on the left bottom corner" class="tree" src="images/tree2.png"/>
+   <img alt="A tall green leafy tree with a brown trunk on the right bottom corner" class="tree right" src="images/tree2.png"/>
    <div class="container" role="main">
     <h1>
      Ini Adalah Angka
@@ -378,15 +395,6 @@
     <div aria-label="Gambar buah sesuai jumlah angka" id="fruit-container">
     </div>
    </div>
-   <!-- Multiple clouds moving right to left -->
-   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c1" src="images/cloud2.png"/>
-   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c2" src="images/cloud2.png"/>
-   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c3" src="images/cloud2.png"/>
-   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c4" src="images/cloud2.png"/>
-   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c5" src="images/cloud2.png"/>
-   <!-- Trees -->
-   <img alt="A tall green leafy tree with a brown trunk on the left bottom corner" class="tree" src="images/tree2.png"/>
-   <img alt="A tall green leafy tree with a brown trunk on the right bottom corner" class="tree right" src="images/tree2.png"/>
    <audio id="number-sound" src="">
    </audio>
   </div>
