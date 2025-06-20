@@ -1,0 +1,512 @@
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu Pilihan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Patrick Hand', cursive, sans-serif;
+      background: linear-gradient(135deg, #a0d8ef, #b7e4c7, #fff3b0);
+      overflow-x: hidden;
+    }
+    /* Full screen moving background shapes (math and learning themed) */
+    .background-shapes {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      overflow: visible;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .shape {
+      position: absolute;
+      opacity: 0.25;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 4px rgba(0 0 0 / 0.1));
+    }
+    /* Different shapes with sizes and animations */
+    .shape-circle {
+      border-radius: 50%;
+      background: #4a90e2;
+      width: 90px;
+      height: 90px;
+      animation-name: floatUpDown;
+      animation-duration: 6s;
+    }
+    .shape-square {
+      background: #7ed957;
+      width: 80px;
+      height: 80px;
+      animation-name: floatLeftRight;
+      animation-duration: 7s;
+      animation-direction: alternate;
+    }
+    .shape-triangle {
+      width: 0;
+      height: 0;
+      border-left: 45px solid transparent;
+      border-right: 45px solid transparent;
+      border-bottom: 80px solid #f7d154;
+      animation-name: floatUpDown;
+      animation-duration: 5.5s;
+      animation-direction: alternate-reverse;
+    }
+    .shape-plus {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      background: #4a90e2;
+      animation-name: floatLeftRight;
+      animation-duration: 6.5s;
+      animation-direction: alternate;
+    }
+    .shape-plus::before, .shape-plus::after {
+      content: "";
+      position: absolute;
+      background: #4a90e2;
+    }
+    .shape-plus::before {
+      top: 28px;
+      left: 0;
+      width: 70px;
+      height: 14px;
+      border-radius: 4px;
+    }
+    .shape-plus::after {
+      top: 0;
+      left: 28px;
+      width: 14px;
+      height: 70px;
+      border-radius: 4px;
+    }
+
+    /* Positions */
+    .pos1 { top: 15%; left: 12%; }
+    .pos2 { top: 30%; right: 15%; }
+    .pos3 { bottom: 20%; left: 18%; }
+    .pos4 { bottom: 25%; right: 20%; }
+    .pos5 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(15deg); opacity: 0.15; }
+    .pos6 { top: 70%; right: 40%; opacity: 0.2; }
+
+    @keyframes floatUpDown {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes floatLeftRight {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(20px); }
+    }
+
+    /* Container styling with transparent background to show animation */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 1.8rem 1.5rem;
+      background: rgba(255 255 255 / 0.6);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 128, 128, 0.15);
+      text-align: center;
+      user-select: none;
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+    }
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.2rem;
+      color: #2a5d9f;
+      padding: 14px 30px 28px;
+      text-shadow: 2px 2px 8px #7ed957;
+      margin-bottom: 2rem;
+      line-height: 1.1;
+    }
+    /* Menu buttons */
+    .menu-button {
+      font-family: 'Fredoka One', cursive;
+      background: linear-gradient(135deg, #4a90e2, #7ed957, #f7d154);
+      color: #1a1a1a;
+      padding: 14px 28px;
+      font-size: 1.5rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(126, 217, 87, 0.5);
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      user-select: none;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .menu-button:hover, .menu-button:focus {
+      box-shadow: 0 18px 30px rgba(247, 209, 84, 0.7);
+      transform: scale(1.07);
+      outline: none;
+      color: #000;
+    }
+    .menu-button i {
+      font-size: 1.6rem;
+      animation: pulseIcon 2.5s infinite;
+      color: #1a1a1a;
+    }
+    @keyframes pulseIcon {
+      0%, 100% { transform: scale(1); color: #1a1a1a; }
+      50% { transform: scale(1.4); color: #f7d154; }
+    }
+
+    /* Back button styling */
+    .back-button {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      background: linear-gradient(135deg, #4a90e2, #7ed957);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0, 128, 128, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    .back-button:hover, .back-button:focus {
+      box-shadow: 0 10px 20px rgba(126, 217, 87, 0.8);
+      transform: scale(1.1);
+      outline: none;
+    }
+    .back-button i {
+      font-size: 1.8rem;
+      pointer-events: none;
+    }
+
+    /* Audio control button styling */
+    #audio-control {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 20;
+      background: rgba(34,197,94,0.8);
+      border-radius: 9999px;
+      width: 3.5rem;
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 10px rgba(34,197,94,0.6);
+    }
+    #audio-control:hover {
+      background-color: rgba(34,197,94,1);
+    }
+    #audio-control i {
+      color: white;
+      font-size: 1.5rem;
+      pointer-events: none;
+    }
+
+    /* Popup container */
+    #volume-popup {
+      position: fixed;
+      bottom: 6.5rem;
+      right: 1.5rem;
+      z-index: 30;
+      background-color: rgba(34,197,94,0.9);
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(34,197,94,0.5), 0 4px 6px -2px rgba(34,197,94,0.3);
+      display: none;
+      flex-direction: column;
+      width: 10rem;
+      user-select: none;
+    }
+    #volume-popup button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-radius: 0.5rem;
+    }
+    #volume-popup button:hover, #volume-popup button:focus {
+      background-color: rgba(255,255,255,0.15);
+      outline: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      .menu-button {
+        font-size: 1.3rem;
+        padding: 12px 24px;
+      }
+      .menu-button i {
+        font-size: 1.3rem;
+      }
+      .container {
+        max-width: 90%;
+        padding: 1.5rem 1rem;
+      }
+      .back-button {
+        width: 40px;
+        height: 40px;
+        top: 12px;
+        right: 12px;
+      }
+      .back-button i {
+        font-size: 1.4rem;
+      }
+      #audio-control {
+        width: 3rem;
+        height: 3rem;
+        bottom: 1rem;
+        right: 1rem;
+      }
+      #audio-control i {
+        font-size: 1.2rem;
+      }
+      #volume-popup {
+        width: 9rem;
+        bottom: 5.5rem;
+        right: 1rem;
+      }
+      #volume-popup button {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div aria-hidden="true" class="background-shapes" aria-label="Animasi latar belakang bertema belajar angka dan berhitung untuk anak-anak">
+    <div class="shape shape-circle pos1" aria-hidden="true"></div>
+    <div class="shape shape-square pos2" aria-hidden="true"></div>
+    <div class="shape shape-triangle pos3" aria-hidden="true"></div>
+    <div class="shape shape-plus pos4" aria-hidden="true"></div>
+    <div class="shape shape-circle pos5" aria-hidden="true"></div>
+    <div class="shape shape-square pos6" aria-hidden="true"></div>
+  </div>
+
+  <a href="index.html" class="back-button" aria-label="Kembali ke halaman utama">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+
+  <main class="flex items-center justify-center min-h-screen px-4">
+    <div class="container" role="main" aria-label="Menu Pilihan">
+      <h1>Menu Pilihan</h1>
+      <a href="number-introduction.html" aria-label="Menu Pengenalan Angka" class="menu-button" id="btn-intro">
+        <i class="fas fa-sort-numeric-up"></i>
+        Pengenalan Angka
+      </a>
+      <a href="counting.html" aria-label="Menu Belajar Berhitung" class="menu-button" id="btn-counting">
+        <i class="fas fa-calculator"></i>
+        Belajar Berhitung
+      </a>
+      <a href="features.html" aria-label="Menu Fitur Menarik Lainnya" class="menu-button" id="btn-features">
+        <i class="fas fa-star"></i>
+        Fitur Menarik Lainnya
+      </a>
+    </div>
+  </main>
+
+  <audio id="background-audio" autoplay loop>
+    <source src="audio/funny-kids.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <audio id="button-funny-intro" src="/audio/button-funny.wav" preload="auto"></audio>
+  <audio id="button-funny-counting" src="/audio/button-funny.wav" preload="auto"></audio>
+  <audio id="button-funny-features" src="/audio/button-funny.wav" preload="auto"></audio>
+
+  <button id="audio-control" aria-label="Toggle background music" aria-pressed="false" title="Toggle background music" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-volume-mute"></i>
+  </button>
+
+  <div id="volume-popup" role="menu" aria-label="Volume controls">
+    <button type="button" id="volume-up" role="menuitem" tabindex="0" aria-label="Increase volume">
+      <i class="fas fa-volume-up"></i> kencangkan Suara
+    </button>
+    <button type="button" id="volume-down" role="menuitem" tabindex="0" aria-label="Decrease volume">
+      <i class="fas fa-volume-down"></i> Pelankan Suara
+    </button>
+    <button type="button" id="volume-mute" role="menuitem" tabindex="0" aria-label="Mute volume">
+      <i class="fas fa-volume-mute"></i> sunyi
+    </button>
+  </div>
+
+  <script>
+    const audio = document.getElementById('background-audio');
+    const audioControl = document.getElementById('audio-control');
+    const icon = audioControl.querySelector('i');
+    const clickSounds = {
+      intro: document.getElementById('button-funny-intro'),
+      counting: document.getElementById('button-funny-counting'),
+      features: document.getElementById('button-funny-features')
+    };
+    const btnIntro = document.getElementById('btn-intro');
+    const btnCounting = document.getElementById('btn-counting');
+    const btnFeatures = document.getElementById('btn-features');
+    const volumePopup = document.getElementById('volume-popup');
+    const volumeUpBtn = document.getElementById('volume-up');
+    const volumeDownBtn = document.getElementById('volume-down');
+    const volumeMuteBtn = document.getElementById('volume-mute');
+
+    audio.volume = 0.3;
+
+    // Try to play audio on page load (may be blocked)
+    audio.play().then(() => {
+      icon.classList.remove('fa-volume-mute');
+      icon.classList.add('fa-volume-up');
+      audioControl.setAttribute('aria-pressed', 'true');
+    }).catch(() => {});
+
+    // On first user interaction, play audio if not playing
+    function userInteractionHandler() {
+      if (audio.paused) {
+        audio.play().then(() => {
+          icon.classList.remove('fa-volume-mute');
+          icon.classList.add('fa-volume-up');
+          audioControl.setAttribute('aria-pressed', 'true');
+        }).catch(() => {});
+      }
+      window.removeEventListener('click', userInteractionHandler);
+      window.removeEventListener('keydown', userInteractionHandler);
+      window.removeEventListener('touchstart', userInteractionHandler);
+    }
+    window.addEventListener('click', userInteractionHandler);
+    window.addEventListener('keydown', userInteractionHandler);
+    window.addEventListener('touchstart', userInteractionHandler);
+
+    // Toggle audio play/pause and icon
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play();
+        icon.classList.remove('fa-volume-mute');
+        icon.classList.add('fa-volume-up');
+        audioControl.setAttribute('aria-pressed', 'true');
+      } else {
+        audio.pause();
+        icon.classList.remove('fa-volume-up');
+        icon.classList.add('fa-volume-mute');
+        audioControl.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    // Show/hide volume popup
+    function toggleVolumePopup() {
+      const isVisible = volumePopup.style.display === 'flex';
+      if (isVisible) {
+        volumePopup.style.display = 'none';
+        audioControl.setAttribute('aria-expanded', 'false');
+      } else {
+        volumePopup.style.display = 'flex';
+        audioControl.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Close popup if clicked outside
+    function handleClickOutside(event) {
+      if (!audioControl.contains(event.target) && !volumePopup.contains(event.target)) {
+        volumePopup.style.display = 'none';
+        audioControl.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    audioControl.addEventListener('click', () => {
+      toggleVolumePopup();
+    });
+
+    volumeUpBtn.addEventListener('click', () => {
+      if (audio.volume < 1) {
+        audio.volume = Math.min(1, audio.volume + 0.1);
+        if (audio.volume > 0) {
+          if (audio.paused) audio.play();
+          icon.classList.remove('fa-volume-mute');
+          icon.classList.add('fa-volume-up');
+          audioControl.setAttribute('aria-pressed', 'true');
+        }
+      }
+      // Do not hide popup on volume change
+    });
+
+    volumeDownBtn.addEventListener('click', () => {
+      if (audio.volume > 0) {
+        audio.volume = Math.max(0, audio.volume - 0.1);
+        if (audio.volume === 0) {
+          audio.pause();
+          icon.classList.remove('fa-volume-up');
+          icon.classList.add('fa-volume-mute');
+          audioControl.setAttribute('aria-pressed', 'false');
+        }
+      }
+      // Do not hide popup on volume change
+    });
+
+    volumeMuteBtn.addEventListener('click', () => {
+      audio.volume = 0;
+      audio.pause();
+      icon.classList.remove('fa-volume-up');
+      icon.classList.add('fa-volume-mute');
+      audioControl.setAttribute('aria-pressed', 'false');
+      // Do not hide popup on mute
+    });
+
+    // Close popup on outside click
+    document.addEventListener('click', handleClickOutside);
+
+    // Play sound on menu button click
+    btnIntro.addEventListener('click', function(event) {
+      clickSounds.intro.currentTime = 0;
+      clickSounds.intro.play();
+    });
+    btnCounting.addEventListener('click', function(event) {
+      clickSounds.counting.currentTime = 0;
+      clickSounds.counting.play();
+    });
+    btnFeatures.addEventListener('click', function(event) {
+      clickSounds.features.currentTime = 0;
+      clickSounds.features.play();
+    });
+
+    // Keyboard accessibility for popup buttons
+    volumePopup.addEventListener('keydown', (e) => {
+      const focusable = Array.from(volumePopup.querySelectorAll('button'));
+      let index = focusable.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        index = (index + 1) % focusable.length;
+        focusable[index].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        index = (index - 1 + focusable.length) % focusable.length;
+        focusable[index].focus();
+      } else if (e.key === 'Escape') {
+        volumePopup.style.display = 'none';
+        audioControl.setAttribute('aria-expanded', 'false');
+        audioControl.focus();
+      }
+    });
+  </script>
+</body>
+</html>

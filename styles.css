@@ -1,0 +1,114 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    margin: 0;
+    overflow: hidden;
+}
+
+.background {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to bottom, #e0f7fa, #b2ebf2);
+    overflow: hidden;
+}
+
+.container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    margin-top: 50px;
+}
+
+#number-display {
+    font-size: 100px;
+    color: #ff5722;
+    margin: 20px 0;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#message {
+    font-size: 24px;
+    color: #00796b;
+    margin-top: 20px;
+}
+
+#number-image {
+    width: 200px;
+    height: auto;
+    margin-top: 20px;
+}
+
+/* Animasi Latar Belakang */
+@keyframes moveClouds {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-200%); }
+}
+
+.cloud {
+    position: absolute;
+    top: 10%; /* Posisi vertikal awan */
+    left: 0; /* Awan di kiri atas */
+    width: 250px; /* Ukuran awan */
+    animation: moveClouds 15s linear infinite; /* Durasi animasi lebih cepat */
+    z-index: 5; /* Pastikan awan berada di belakang konten */
+}
+
+.cloud.right {
+    right: 0; /* Awan di kanan atas */
+    left: auto; /* Menghapus posisi kiri */
+}
+
+.tree {
+    position: absolute;
+    bottom: 0;
+    left: 0; /* Pohon di kiri bawah */
+    width: 300px; /* Ukuran pohon yang lebih besar */
+    animation: sway 2s ease-in-out infinite alternate; /* Animasi goyang */
+}
+
+.tree.right {
+    right: 0; /* Pohon di kanan bawah */
+    left: auto; /* Menghapus posisi kiri */
+}
+
+@keyframes sway {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(5deg); } /* Goyangan pohon */
+}
+
+.leaf {
+    position: absolute;
+    bottom: 50px;
+    left: 20px;
+    width: 30px;
+    animation: sway 2s ease-in-out infinite alternate;
+}
+
+.menu-button {
+    padding: 15px 30px;
+    font-size: 24px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.menu-button:hover {
+    background-color: #45a049;
+}
+

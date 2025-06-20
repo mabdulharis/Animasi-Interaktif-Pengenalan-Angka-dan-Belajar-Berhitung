@@ -1,0 +1,649 @@
+<html lang="id">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+  <title>
+   Pengenalan Angka
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+   /* Prevent scrolling */
+      html, body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(to bottom, #60a5fa, #bfdbfe); /* Tailwind blue-400 to blue-200 */
+      }
+      body {
+        touch-action: none;
+      }
+      .background {
+        position: relative;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+      /* Trees */
+      .tree {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+        width: 250px;
+        height: auto;
+        z-index: 0;
+        animation: swayTreeLeft 4s ease-in-out infinite alternate;
+        transform-origin: bottom center;
+        user-select: none;
+        pointer-events: none;
+      }
+      .tree.right {
+        left: auto;
+        right: 1rem;
+        animation: swayTreeRight 4s ease-in-out infinite alternate;
+      }
+      /* Clouds moving right to left continuously */
+      .cloud {
+        position: absolute;
+        top: 1rem;
+        width: 200px;
+        height: auto;
+        z-index: 0;
+        user-select: none;
+        pointer-events: none;
+        animation: moveCloudLeft 30s linear infinite;
+      }
+      /* Different start positions and delays for multiple clouds */
+      .cloud.c1 { left: 100vw; animation-delay: 0s; }
+      .cloud.c2 { left: 130vw; animation-delay: 5s; }
+      .cloud.c3 { left: 160vw; animation-delay: 10s; }
+      .cloud.c4 { left: 190vw; animation-delay: 5s; }
+      .cloud.c5 { left: 220vw; animation-delay: 10s; }
+
+      /* Animations */
+      @keyframes moveCloudLeft {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-240vw);
+        }
+      }
+      @keyframes swayTreeLeft {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(5deg);
+        }
+      }
+      @keyframes swayTreeRight {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(-5deg);
+        }
+      }
+
+      /* Container styling without white border */
+      .container {
+        background-color: rgba(255 255 255 / 0.15);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 2.5rem 2rem 3rem;
+        max-width: 28rem;
+        margin: auto;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #1e3a8a; /* Tailwind blue-900 for strong contrast */
+        user-select: none;
+        text-align: center;
+      }
+      h1 {
+        font-weight: 700;
+        font-size: 3rem; /* larger than text-4xl */
+        margin-bottom: 2rem;
+        color: #1e40af; /* Tailwind blue-800 */
+        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.2);
+      }
+      #number-display {
+        font-weight: 800;
+        font-size: 6rem; /* bigger than text-8xl */
+        margin-bottom: 2rem;
+        color: #1e40af; /* Tailwind blue-800 */
+        text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+        cursor: pointer;
+        user-select: none;
+        display: inline-block;
+        transition: transform 0.4s ease;
+      }
+      #number-display.zoom {
+        transform: scale(1.5);
+      }
+      #message {
+        font-size: 1.25rem; /* larger than text-lg */
+        min-height: 2.5rem;
+        margin-bottom: 2rem;
+        color: #1e40af; /* Tailwind blue-800 */
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+      }
+      button {
+        font-weight: 700;
+        border-radius: 0.75rem;
+        padding: 1rem 2.5rem;
+        box-shadow: 0 8px 15px rgb(0 0 0 / 0.2);
+        transition: all 0.3s ease;
+        outline-offset: 3px;
+        font-size: 1.25rem;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      #prev-button {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+      }
+      #prev-button:hover,
+      #prev-button:focus {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        outline: none;
+        box-shadow: 0 0 0 4px #93c5fd, 0 12px 20px rgb(37 99 235 / 0.6);
+        transform: translateY(-3px);
+      }
+      #next-button {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+      }
+      #next-button:hover,
+      #next-button:focus {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        outline: none;
+        box-shadow: 0 0 0 4px #86efac, 0 12px 20px rgb(22 163 74 / 0.6);
+        transform: translateY(-3px);
+      }
+      /* Removed #number-image since no longer used */
+
+      /* New back button style */
+      .back-button {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 50;
+        background: linear-gradient(135deg, #4a90e2, #7ed957);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        cursor: pointer;
+        box-shadow: 0 6px 12px rgba(0, 128, 128, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        user-select: none;
+        text-decoration: none;
+      }
+      .back-button:hover, .back-button:focus {
+        box-shadow: 0 10px 20px rgba(126, 217, 87, 0.8);
+        transform: scale(1.1);
+        outline: none;
+      }
+      .back-button i {
+        font-size: 1.8rem;
+        pointer-events: none;
+      }
+      @media (max-width: 640px) {
+        #number-display {
+          font-size: 4.5rem;
+        }
+        button {
+          font-size: 1rem;
+          padding: 0.75rem 1.5rem;
+        }
+        .back-button {
+          width: 40px;
+          height: 40px;
+          top: 12px;
+          right: 12px;
+        }
+        .back-button i {
+          font-size: 1.4rem;
+        }
+      }
+      /* Container for fruit images */
+      #fruit-container {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+      }
+      .fruit-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        user-select: none;
+      }
+      .fruit-wrapper img {
+        width: 5rem;
+        height: 5rem;
+        object-fit: contain;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgb(0 0 0 / 0.15);
+        cursor: default;
+        animation: zoomInOut 3s ease-in-out infinite;
+      }
+      .fruit-number {
+        margin-top: 0.25rem;
+        font-weight: 700;
+        color: #1e40af;
+        font-size: 1.1rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+        user-select: none;
+      }
+      @media (max-width: 640px) {
+        .fruit-wrapper img {
+          width: 3.5rem;
+          height: 3.5rem;
+        }
+        .fruit-number {
+          font-size: 0.9rem;
+        }
+      }
+      @keyframes zoomInOut {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.15);
+        }
+      }
+
+      /* Audio control button styling */
+      #audio-control {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 60;
+        background: rgba(34,197,94,0.8);
+        border-radius: 9999px;
+        width: 3.5rem;
+        height: 3.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 4px 10px rgba(34,197,94,0.6);
+      }
+      #audio-control:hover {
+        background-color: rgba(34,197,94,1);
+      }
+      #audio-control i {
+        color: white;
+        font-size: 1.5rem;
+        pointer-events: none;
+      }
+
+      /* Popup container */
+      #volume-popup {
+        position: fixed;
+        top: 60px;
+        left: 16px;
+        z-index: 70;
+        background-color: rgba(34,197,94,0.9);
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(34,197,94,0.5), 0 4px 6px -2px rgba(34,197,94,0.3);
+        display: none;
+        flex-direction: column;
+        width: 10rem;
+        user-select: none;
+      }
+      #volume-popup button {
+        background: transparent;
+        border: none;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        border-radius: 0.5rem;
+      }
+      #volume-popup button:hover, #volume-popup button:focus {
+        background-color: rgba(255,255,255,0.15);
+        outline: none;
+      }
+
+      /* Responsive */
+      @media (max-width: 640px) {
+        #audio-control {
+          width: 3rem;
+          height: 3rem;
+          top: 12px;
+          left: 12px;
+        }
+        #audio-control i {
+          font-size: 1.2rem;
+        }
+        #volume-popup {
+          width: 9rem;
+          top: 52px;
+          left: 12px;
+        }
+        #volume-popup button {
+          font-size: 0.9rem;
+          padding: 0.6rem 0.8rem;
+        }
+      }
+  </style>
+ </head>
+ <body>
+  <div class="background">
+   <div class="container" role="main">
+    <h1>
+     Ini Adalah Angka
+    </h1>
+    <div aria-atomic="true" aria-live="polite" id="number-display" tabindex="0">
+     0
+    </div>
+    <div class="flex justify-center gap-8 mb-6 flex-wrap">
+     <button aria-label="Kembali ke angka sebelumnya" id="prev-button" type="button">
+      <i class="fas fa-arrow-left">
+      </i>
+      Angka Sebelumnya
+     </button>
+     <button aria-label="Lanjut ke angka selanjutnya" id="next-button" type="button">
+      Angka Selanjutnya
+      <i class="fas fa-arrow-right">
+      </i>
+     </button>
+    </div>
+    <div aria-atomic="true" aria-live="polite" id="message">
+    </div>
+    <div aria-label="Gambar buah sesuai jumlah angka" id="fruit-container">
+    </div>
+   </div>
+   <!-- Multiple clouds moving right to left -->
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c1" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c2" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c3" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c4" src="images/cloud2.png"/>
+   <img alt="A fluffy white cloud floating in a bright blue sky moving from right to left" class="cloud c5" src="images/cloud2.png"/>
+   <!-- Trees -->
+   <img alt="A tall green leafy tree with a brown trunk on the left bottom corner" class="tree" src="images/tree2.png"/>
+   <img alt="A tall green leafy tree with a brown trunk on the right bottom corner" class="tree right" src="images/tree2.png"/>
+   <audio id="number-sound" src="">
+   </audio>
+  </div>
+  <a aria-label="Kembali ke menu utama" class="back-button" href="menu.html">
+   <i class="fas fa-arrow-left">
+   </i>
+  </a>
+  <!-- Audio control button -->
+  <button aria-expanded="false" aria-haspopup="true" aria-label="Toggle background music" aria-pressed="false" id="audio-control" title="Toggle background music">
+   <i class="fas fa-volume-mute">
+   </i>
+  </button>
+  <!-- Volume popup -->
+  <div aria-label="Volume controls" id="volume-popup" role="menu">
+   <button aria-label="Increase volume" id="volume-up" role="menuitem" tabindex="0" type="button">
+    <i class="fas fa-volume-up">
+    </i>
+    Kencangkan Suara
+   </button>
+   <button aria-label="Decrease volume" id="volume-down" role="menuitem" tabindex="0" type="button">
+    <i class="fas fa-volume-down">
+    </i>
+    Pelankan Suara
+   </button>
+   <button aria-label="Mute volume" id="volume-mute" role="menuitem" tabindex="0" type="button">
+    <i class="fas fa-volume-mute">
+    </i>
+    Sunyi
+   </button>
+  </div>
+  <audio id="background-audio" loop="">
+   <source src="audio/funny-kids.mp3" type="audio/mpeg"/>
+   Your browser does not support the audio element.
+  </audio>
+  <script>
+   const numbers = [
+            { value: 0, image: 'images/0.svg', sound: 'audio/enol.mp3' },
+            { value: 1, image: 'images/1.png', sound: 'audio/satu.m4a' },
+            { value: 2, image: 'images/2.png', sound: 'audio/dua.m4a' },
+            { value: 3, image: 'images/3.png', sound: 'audio/tiga.m4a' },
+            { value: 4, image: 'images/4.png', sound: 'audio/empat.m4a' },
+            { value: 5, image: 'images/5.png', sound: 'audio/lima.m4a' },
+            { value: 6, image: 'images/6.png', sound: 'audio/enam.m4a' },
+            { value: 7, image: 'images/7.png', sound: 'audio/tujuh.m4a' },
+            { value: 8, image: 'images/8.png', sound: 'audio/delapan.m4a' },
+            { value: 9, image: 'images/9.png', sound: 'audio/sembilan.m4a' },
+            { value: 10, image: 'images/10.png', sound: 'audio/sepuluh.m4a' }
+        ];
+
+        const fruits = [
+            { name: 'apel merah', url: 'images/apel.png', audio: 'audio/gambar.wav' },
+            { name: 'semangka hijau', url: 'images/semangka.png', audio: 'audio/gambar.wav' },
+            { name: 'jeruk oranye', url: 'images/jeruk.png', audio: 'audio/gambar.wav' },
+            { name: 'stroberi merah', url: 'images/stroberi.png', audio: 'audio/gambar.wav' },
+            { name: 'anggur ungu', url: 'images/anggur.png', audio: 'audio/gambar.wav' },
+            { name: 'alpukat hijau', url: 'images/alpukat.png', audio: 'audio/gambar.wav' }
+        ];
+
+        let currentIndex = 0;
+
+        const numberDisplay = document.getElementById('number-display');
+        const nextButton = document.getElementById('next-button');
+        const prevButton = document.getElementById('prev-button');
+        const message = document.getElementById('message');
+        const fruitContainer = document.getElementById('fruit-container');
+        const numberSound = document.getElementById('number-sound');
+
+        // Background audio and controls
+        const backgroundAudio = document.getElementById('background-audio');
+        const audioControl = document.getElementById('audio-control');
+        const audioIcon = audioControl.querySelector('i');
+        const volumePopup = document.getElementById('volume-popup');
+        const volumeUpBtn = document.getElementById('volume-up');
+        const volumeDownBtn = document.getElementById('volume-down');
+        const volumeMuteBtn = document.getElementById('volume-mute');
+
+        // Initialize background audio volume and play
+        backgroundAudio.volume = 0.3;
+        backgroundAudio.play().then(() => {
+          audioIcon.classList.remove('fa-volume-mute');
+          audioIcon.classList.add('fa-volume-up');
+          audioControl.setAttribute('aria-pressed', 'true');
+        }).catch(() => {});
+
+        // Update display function
+        function updateDisplay() {
+            const currentNumber = numbers[currentIndex];
+            numberDisplay.textContent = currentNumber.value;
+
+            if (currentNumber.value === 0) {
+                message.textContent = "Tidak ada buah yang ditampilkan karna nol berarti kosong";
+            } else {
+                message.textContent = "Ada berapa jumlah buah di bawah ini";
+            }
+
+            // Update buah sesuai angka
+            fruitContainer.innerHTML = '';
+            if (currentNumber.value > 0) {
+                // Tampilkan buah sebanyak angka, ulangi buah jika angka lebih dari jumlah buah tersedia
+                for (let i = 0; i < currentNumber.value; i++) {
+                    const fruit = fruits[i % fruits.length];
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'fruit-wrapper';
+
+                    const img = document.createElement('img');
+                    img.src = fruit.url;
+                    img.alt = `Gambar buah ${fruit.name} berwarna cerah dan segar`;
+                    img.draggable = false;
+
+                    const numberLabel = document.createElement('div');
+                    numberLabel.className = 'fruit-number';
+                    numberLabel.textContent = i + 1;
+
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(numberLabel);
+                    fruitContainer.appendChild(wrapper);
+                }
+            }
+
+            numberSound.src = currentNumber.sound;
+            numberSound.load();
+
+            // Putar suara dan setelah selesai, beri efek zoom pada angka
+            numberSound.play().catch(() => {});
+
+            // Hapus kelas zoom jika ada
+            numberDisplay.classList.remove('zoom');
+
+            // Hilangkan tombol angka sebelumnya jika angka 0, tampilkan jika bukan 0
+            if (currentNumber.value === 0) {
+                prevButton.style.display = 'none';
+            } else {
+                prevButton.style.display = 'flex';
+            }
+        }
+
+        // Event listener untuk tombol "Selanjutnya"
+        nextButton.addEventListener('click', () => {
+            if (currentIndex < numbers.length - 1) {
+                currentIndex++;
+                updateDisplay();
+            }
+        });
+
+        // Event listener untuk tombol "Kembali"
+        prevButton.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateDisplay();
+            }
+        });
+
+        // Ketika audio selesai diputar, tambahkan efek zoom pada angka
+        numberSound.addEventListener('ended', () => {
+            numberDisplay.classList.add('zoom');
+            // Hilangkan efek zoom setelah 800ms agar bisa diputar ulang
+            setTimeout(() => {
+                numberDisplay.classList.remove('zoom');
+            }, 800);
+        });
+
+        // Audio control toggle
+        function toggleAudio() {
+          if (backgroundAudio.paused) {
+            backgroundAudio.play();
+            audioIcon.classList.remove('fa-volume-mute');
+            audioIcon.classList.add('fa-volume-up');
+            audioControl.setAttribute('aria-pressed', 'true');
+          } else {
+            backgroundAudio.pause();
+            audioIcon.classList.remove('fa-volume-up');
+            audioIcon.classList.add('fa-volume-mute');
+            audioControl.setAttribute('aria-pressed', 'false');
+          }
+        }
+
+        // Show/hide volume popup
+        function toggleVolumePopup() {
+          const isVisible = volumePopup.style.display === 'flex';
+          if (isVisible) {
+            volumePopup.style.display = 'none';
+            audioControl.setAttribute('aria-expanded', 'false');
+          } else {
+            volumePopup.style.display = 'flex';
+            audioControl.setAttribute('aria-expanded', 'true');
+          }
+        }
+
+        // Close popup if clicked outside
+        function handleClickOutside(event) {
+          if (!audioControl.contains(event.target) && !volumePopup.contains(event.target)) {
+            volumePopup.style.display = 'none';
+            audioControl.setAttribute('aria-expanded', 'false');
+          }
+        }
+
+        audioControl.addEventListener('click', () => {
+          toggleVolumePopup();
+        });
+
+        volumeUpBtn.addEventListener('click', () => {
+          if (backgroundAudio.volume < 1) {
+            backgroundAudio.volume = Math.min(1, backgroundAudio.volume + 0.1);
+            if (backgroundAudio.volume > 0) {
+              if (backgroundAudio.paused) backgroundAudio.play();
+              audioIcon.classList.remove('fa-volume-mute');
+              audioIcon.classList.add('fa-volume-up');
+              audioControl.setAttribute('aria-pressed', 'true');
+            }
+          }
+          // Do not hide popup on volume change
+        });
+
+        volumeDownBtn.addEventListener('click', () => {
+          if (backgroundAudio.volume > 0) {
+            backgroundAudio.volume = Math.max(0, backgroundAudio.volume - 0.1);
+            if (backgroundAudio.volume === 0) {
+              backgroundAudio.pause();
+              audioIcon.classList.remove('fa-volume-up');
+              audioIcon.classList.add('fa-volume-mute');
+              audioControl.setAttribute('aria-pressed', 'false');
+            }
+          }
+          // Do not hide popup on volume change
+        });
+
+        volumeMuteBtn.addEventListener('click', () => {
+          backgroundAudio.volume = 0;
+          backgroundAudio.pause();
+          audioIcon.classList.remove('fa-volume-up');
+          audioIcon.classList.add('fa-volume-mute');
+          audioControl.setAttribute('aria-pressed', 'false');
+          // Do not hide popup on mute
+        });
+
+        // Close popup on outside click
+        document.addEventListener('click', handleClickOutside);
+
+        // On first user interaction, play background audio if not playing
+        function userInteractionHandler() {
+          if (backgroundAudio.paused) {
+            backgroundAudio.play().then(() => {
+              audioIcon.classList.remove('fa-volume-mute');
+              audioIcon.classList.add('fa-volume-up');
+              audioControl.setAttribute('aria-pressed', 'true');
+            }).catch(() => {});
+          }
+          window.removeEventListener('click', userInteractionHandler);
+          window.removeEventListener('keydown', userInteractionHandler);
+          window.removeEventListener('touchstart', userInteractionHandler);
+        }
+        window.addEventListener('click', userInteractionHandler);
+        window.addEventListener('keydown', userInteractionHandler);
+        window.addEventListener('touchstart', userInteractionHandler);
+
+        // Initialize display on load
+        updateDisplay();
+  </script>
+ </body>
+</html>

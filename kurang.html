@@ -1,0 +1,998 @@
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Game Pengurangan dengan Suara</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Fredoka+One&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Patrick Hand', cursive, sans-serif;
+      background: linear-gradient(135deg, #a0d8ef, #b7e4c7, #fff3b0);
+      overflow-x: hidden;
+      position: relative;
+    }
+    .background-shapes {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      overflow: visible;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .shape {
+      position: absolute;
+      opacity: 0.25;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 4px rgba(0 0 0 / 0.1));
+    }
+    .shape-circle {
+      border-radius: 50%;
+      background: #4a90e2;
+      width: 90px;
+      height: 90px;
+      animation-name: floatUpDown;
+      animation-duration: 6s;
+    }
+    .shape-square {
+      background: #7ed957;
+      width: 80px;
+      height: 80px;
+      animation-name: floatLeftRight;
+      animation-duration: 7s;
+      animation-direction: alternate;
+    }
+    .shape-triangle {
+      width: 0;
+      height: 0;
+      border-left: 45px solid transparent;
+      border-right: 45px solid transparent;
+      border-bottom: 80px solid #f7d154;
+      animation-name: floatUpDown;
+      animation-duration: 5.5s;
+      animation-direction: alternate-reverse;
+    }
+    .shape-plus {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      background: #4a90e2;
+      animation-name: floatLeftRight;
+      animation-duration: 6.5s;
+      animation-direction: alternate;
+    }
+    .shape-plus::before, .shape-plus::after {
+      content: "";
+      position: absolute;
+      background: #4a90e2;
+    }
+    .shape-plus::before {
+      top: 28px;
+      left: 0;
+      width: 70px;
+      height: 14px;
+      border-radius: 4px;
+    }
+    .shape-plus::after {
+      top: 0;
+      left: 28px;
+      width: 14px;
+      height: 70px;
+      border-radius: 4px;
+    }
+    .pos1 { top: 15%; left: 12%; }
+    .pos2 { top: 30%; right: 15%; }
+    .pos3 { bottom: 20%; left: 18%; }
+    .pos4 { bottom: 25%; right: 20%; }
+    .pos5 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(15deg); opacity: 0.15; }
+    .pos6 { top: 70%; right: 40%; opacity: 0.2; }
+    @keyframes floatUpDown {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes floatLeftRight {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(20px); }
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+      background: rgba(255 255 255 / 0.75);
+      border-radius: 32px;
+      box-shadow: 0 12px 40px rgba(0, 128, 128, 0.2);
+      text-align: center;
+      user-select: none;
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.8rem;
+      color: #2a5d9f;
+      padding-bottom: 1.5rem;
+      text-shadow: 2px 2px 10px #7ed957;
+      margin-bottom: 2.5rem;
+      line-height: 1.1;
+    }
+    #question {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #1a3d7c;
+      margin-bottom: 2rem;
+      text-shadow: 1px 1px 4px #7ed957;
+      min-height: 3rem;
+    }
+    #images {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 2.5rem;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 0 8px;
+      min-height: 64px;
+      align-items: center;
+    }
+    #images img {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(126, 217, 87, 0.4);
+      cursor: pointer;
+      user-select: none;
+      opacity: 0;
+      transform: scale(0.8);
+      animation-fill-mode: forwards;
+    }
+    #images img.showing {
+      animation-name: fadeInScale;
+      animation-duration: 0.4s;
+      animation-timing-function: ease-out;
+      opacity: 1;
+      transform: scale(1);
+    }
+    #images img.hiding {
+      animation-name: fadeOutScale;
+      animation-duration: 0.4s;
+      animation-timing-function: ease-in;
+      opacity: 0;
+      transform: scale(0.5);
+      pointer-events: none;
+      cursor: default;
+    }
+    @keyframes fadeInScale {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    @keyframes fadeOutScale {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+    }
+    .blurred {
+      filter: blur(3px) grayscale(70%);
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: default;
+    }
+    form {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    #answerInput {
+      border: 3px solid #7ed957;
+      border-radius: 16px;
+      padding: 0.75rem 1.25rem;
+      width: 96px;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      color: #1a3d7c;
+      box-shadow: 0 4px 10px rgba(126, 217, 87, 0.5);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #answerInput:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 6px 14px rgba(74, 144, 226, 0.7);
+      background: #e6f0ff;
+    }
+    button[type="submit"] {
+      background: linear-gradient(135deg, #4a90e2, #7ed957, #f7d154);
+      color: #1a1a1a;
+      font-family: 'Fredoka One', cursive;
+      font-weight: 700;
+      font-size: 1.8rem;
+      padding: 0.75rem 2.5rem;
+      border-radius: 32px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(126, 217, 87, 0.6);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    button[type="submit"]:hover,
+    button[type="submit"]:focus {
+      box-shadow: 0 14px 28px rgba(247, 209, 84, 0.8);
+      transform: scale(1.05);
+      outline: none;
+      color: #000;
+    }
+    #notification {
+      font-size: 1.8rem;
+      font-weight: 700;
+      min-height: 3rem;
+      margin-bottom: 1.5rem;
+      user-select: none;
+      min-height: 3rem;
+    }
+    #notification.text-green-600 {
+      color: #2f855a;
+      text-shadow: 1px 1px 4px #a3e635;
+    }
+    #notification.text-red-600 {
+      color: #c53030;
+      text-shadow: 1px 1px 4px #f87171;
+    }
+    #nextBtn {
+      background: linear-gradient(135deg, #4a90e2, #7ed957, #f7d154);
+      color: #1a1a1a;
+      font-family: 'Fredoka One', cursive;
+      font-weight: 700;
+      font-size: 1.8rem;
+      padding: 0.75rem 0;
+      border-radius: 32px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(126, 217, 87, 0.6);
+      transition: all 0.3s ease;
+      user-select: none;
+      width: 100%;
+      display: none;
+    }
+    #nextBtn:hover,
+    #nextBtn:focus {
+      box-shadow: 0 14px 28px rgba(247, 209, 84, 0.8);
+      transform: scale(1.05);
+      outline: none;
+      color: #000;
+    }
+    #nextBtn.show {
+      display: block;
+    }
+    #images::-webkit-scrollbar {
+      height: 8px;
+    }
+    #images::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #images::-webkit-scrollbar-thumb {
+      background: #7ed957;
+      border-radius: 4px;
+    }
+    .back-button {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      background: linear-gradient(135deg, #4a90e2, #7ed957);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0, 128, 128, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      user-select: none;
+      text-decoration: none;
+    }
+    .back-button:hover, .back-button:focus {
+      box-shadow: 0 10px 20px rgba(126, 217, 87, 0.8);
+      transform: scale(1.1);
+      outline: none;
+    }
+    .back-button i {
+      font-size: 1.8rem;
+      pointer-events: none;
+    }
+    /* Result Screen Styles */
+    #resultScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 1rem 2rem;
+      text-align: center;
+      color: #1a3d7c;
+      user-select: none;
+    }
+    #resultScreen.show {
+      display: flex;
+    }
+    #resultScreen h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 3rem;
+      color: #2a5d9f;
+      text-shadow: 2px 2px 12px #7ed957;
+      margin-bottom: 0.5rem;
+    }
+    #resultScreen p {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a3d7c;
+      text-shadow: 1px 1px 6px #7ed957;
+      margin: 0;
+    }
+    #resultScreen .score-box {
+      background: #7ed957;
+      background: linear-gradient(135deg, #7ed957, #4a90e2);
+      color: white;
+      border-radius: 32px;
+      padding: 2rem 3rem;
+      box-shadow: 0 12px 40px rgba(74, 144, 226, 0.8);
+      width: 100%;
+      max-width: 400px;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: center;
+    }
+    #resultScreen .score-box p {
+      font-size: 2.6rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    #resultScreen .score-box p.correct {
+      color: #d1fae5;
+      text-shadow: 2px 2px 8px #22c55e;
+    }
+    #resultScreen .score-box p.wrong {
+      color: #fee2e2;
+      text-shadow: 2px 2px 8px #dc2626;
+    }
+    #resultScreen .score-box p i {
+      font-size: 2.8rem;
+      flex-shrink: 0;
+    }
+    #resultScreen button#restartBtn {
+      background: linear-gradient(135deg, #f7d154, #7ed957, #4a90e2);
+      color: #1a1a1a;
+      font-family: 'Fredoka One', cursive;
+      font-weight: 700;
+      font-size: 2rem;
+      padding: 1rem 3rem;
+      border-radius: 40px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(126, 217, 87, 0.7);
+      transition: all 0.3s ease;
+      user-select: none;
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 400px;
+      letter-spacing: 0.05em;
+    }
+    #resultScreen button#restartBtn:hover,
+    #resultScreen button#restartBtn:focus {
+      box-shadow: 0 18px 36px rgba(247, 209, 84, 0.9);
+      transform: scale(1.08);
+      outline: none;
+      color: #000;
+    }
+    @media (max-width: 480px) {
+      .container {
+        max-width: 90%;
+        padding: 2rem 1.5rem;
+        min-height: 480px;
+      }
+      h1 {
+        font-size: 2rem;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+      }
+      #question {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        min-height: 2.5rem;
+      }
+      #images img {
+        width: 48px;
+        height: 48px;
+      }
+      #answerInput {
+        width: 72px;
+        font-size: 1.6rem;
+        padding: 0.5rem 1rem;
+      }
+      button[type="submit"], #nextBtn {
+        font-size: 1.4rem;
+        padding: 0.6rem 1.8rem;
+      }
+      #notification {
+        font-size: 1.4rem;
+        min-height: 2rem;
+        margin-bottom: 1rem;
+      }
+      .back-button {
+        width: 40px;
+        height: 40px;
+        top: 12px;
+        right: 12px;
+      }
+      .back-button i {
+        font-size: 1.4rem;
+      }
+      #resultScreen h2 {
+        font-size: 2.4rem;
+      }
+      #resultScreen p {
+        font-size: 1.6rem;
+      }
+      #resultScreen .score-box p {
+        font-size: 2rem;
+      }
+      #resultScreen .score-box {
+        padding: 1.5rem 2rem;
+        max-width: 100%;
+      }
+      #resultScreen button#restartBtn {
+        font-size: 1.6rem;
+        padding: 0.8rem 2rem;
+        max-width: 100%;
+      }
+    }
+    /* Voice Button and Popup */
+    #voiceButton {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+      background: linear-gradient(135deg, #4a90e2, #7ed957);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      box-shadow: 0 6px 12px rgba(0, 128, 128, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+    }
+    #voiceButton:hover, #voiceButton:focus {
+      box-shadow: 0 10px 20px rgba(126, 217, 87, 0.8);
+      transform: scale(1.1);
+      outline: none;
+    }
+    #voicePopup {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      z-index: 60;
+      background: rgba(255 255 255 / 0.95);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 0.5rem 0;
+      width: 180px;
+      display: none;
+      flex-direction: column;
+      user-select: none;
+    }
+    #voicePopup.show {
+      display: flex;
+    }
+    #voicePopup button {
+      background: transparent;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a3d7c;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.2s ease;
+      font-family: 'Patrick Hand', cursive, sans-serif;
+    }
+    #voicePopup button:hover, #voicePopup button:focus {
+      background-color: #7ed957;
+      color: white;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <div aria-hidden="true" class="background-shapes" aria-label="Animasi latar belakang bertema belajar angka dan berhitung untuk anak-anak">
+    <div class="shape shape-circle pos1" aria-hidden="true"></div>
+    <div class="shape shape-square pos2" aria-hidden="true"></div>
+    <div class="shape shape-triangle pos3" aria-hidden="true"></div>
+    <div class="shape shape-plus pos4" aria-hidden="true"></div>
+    <div class="shape shape-circle pos5" aria-hidden="true"></div>
+    <div class="shape shape-square pos6" aria-hidden="true"></div>
+  </div>
+
+  <a href="counting.html" class="back-button" aria-label="Kembali ke halaman belajar berhitung">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+
+  <main class="flex items-center justify-center min-h-screen px-4">
+    <section class="container" role="main" aria-label="Mini Game Pengurangan dengan Suara" id="gameScreen">
+      <h1>Mini Game Pengurangan dengan Suara</h1>
+      <div id="question" aria-live="polite" aria-atomic="true"></div>
+      <div id="images" aria-label="Gambar buah sesuai jumlah soal" role="list"></div>
+      <form id="answerForm" class="flex justify-center gap-4" autocomplete="off" aria-label="Form jawaban pengurangan">
+        <input
+          type="number"
+          id="answerInput"
+          aria-required="true"
+          aria-describedby="notification"
+          placeholder="Jawaban"
+          min="0"
+          max="10"
+          required
+          inputmode="numeric"
+          pattern="[0-9]*"
+        />
+        <button type="submit" aria-label="Cek jawaban">jawab</button>
+      </form>
+      <div id="notification" role="alert" aria-live="assertive" class="text-center"></div>
+      <button id="nextBtn" aria-label="Soal berikutnya">Soal Berikutnya</button>
+    </section>
+
+    <section class="container" id="resultScreen" aria-label="Hasil permainan">
+      <h2>Hasil Permainan</h2>
+      <div class="score-box" role="region" aria-live="polite" aria-atomic="true">
+        <p id="correctCount" class="correct"><i class="fas fa-check-circle"></i> Jawaban Benar: 0</p>
+        <p id="wrongCount" class="wrong"><i class="fas fa-times-circle"></i> Jawaban Salah: 0</p>
+      </div>
+      <button id="restartBtn" aria-label="Mulai ulang permainan">Mulai Ulang</button>
+    </section>
+  </main>
+
+  <button id="voiceButton" aria-haspopup="true" aria-expanded="false" aria-label="Kontrol suara">
+    <i class="fas fa-volume-up" aria-hidden="true"></i>
+  </button>
+  <div id="voicePopup" role="menu" aria-label="Pilihan kontrol suara">
+    <button type="button" role="menuitem" id="volumeUpBtn">Kencangkan Suara</button>
+    <button type="button" role="menuitem" id="volumeDownBtn">Pelankan Suara</button>
+    <button type="button" role="menuitem" id="muteBtn">Sunyi</button>
+  </div>
+
+  <script>
+    const questionEl = document.getElementById('question');
+    const imagesEl = document.getElementById('images');
+    const answerForm = document.getElementById('answerForm');
+    const answerInput = document.getElementById('answerInput');
+    const notificationEl = document.getElementById('notification');
+    const nextBtn = document.getElementById('nextBtn');
+    const gameScreen = document.getElementById('gameScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const correctCountEl = document.getElementById('correctCount');
+    const wrongCountEl = document.getElementById('wrongCount');
+    const restartBtn = document.getElementById('restartBtn');
+
+    const voiceButton = document.getElementById('voiceButton');
+    const voicePopup = document.getElementById('voicePopup');
+    const volumeUpBtn = document.getElementById('volumeUpBtn');
+    const volumeDownBtn = document.getElementById('volumeDownBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    const MAX_NUMBER = 10;
+    const TOTAL_QUESTIONS = 10;
+
+    const numberAudioMap = {
+      0: 'audio/enol.mp3',
+      1: 'audio/satu.m4a',
+      2: 'audio/dua.m4a',
+      3: 'audio/tiga.m4a',
+      4: 'audio/empat.m4a',
+      5: 'audio/lima.m4a',
+      6: 'audio/enam.m4a',
+      7: 'audio/tujuh.m4a',
+      8: 'audio/delapan.m4a',
+      9: 'audio/sembilan.m4a',
+      10: 'audio/sepuluh.m4a'
+    };
+
+    const objects = [
+      { name: 'apel merah', url: 'images/apel.png', audio: 'audio/gambar.wav' },
+      { name: 'semangka hijau', url: 'images/semangka.png', audio: 'audio/gambar.wav' },
+      { name: 'jeruk oranye', url: 'images/jeruk.png', audio: 'audio/gambar.wav' },
+      { name: 'stroberi merah', url: 'images/stroberi.png', audio: 'audio/gambar.wav' },
+      { name: 'anggur ungu', url: 'images/anggur.png', audio: 'audio/gambar.wav' },
+      { name: 'alpukat hijau', url: 'images/alpukat.png', audio: 'audio/gambar.wav' }
+    ];
+
+    let currentQuestion = null;
+    let currentObjects = [];
+    let playingAudios = [];
+    let questionCount = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let answeredCurrent = false;
+    let resultAudio = null;
+    let displayedImages = [];
+    let globalVolume = 1.0; // volume range 0.0 to 1.0
+
+    function stopAllAudio() {
+      playingAudios.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+      playingAudios = [];
+      if(resultAudio){
+        resultAudio.pause();
+        resultAudio.currentTime = 0;
+        resultAudio = null;
+      }
+    }
+
+    function clearImages() {
+      while (imagesEl.firstChild) {
+        imagesEl.removeChild(imagesEl.firstChild);
+      }
+      displayedImages = [];
+    }
+
+    function createImageElement(obj, index, total, isBlurred = false, blurIndex = 0, blurTotal = 0) {
+      const img = document.createElement('img');
+      img.src = obj.url;
+      if(isBlurred){
+        img.alt = `Gambar ${obj.name} yang dikurangi ke-${blurIndex + 1} dari total ${blurTotal}`;
+        img.classList.add('blurred');
+        img.style.pointerEvents = 'none';
+        img.style.cursor = 'default';
+        img.tabIndex = -1;
+      } else {
+        img.alt = `Gambar ${obj.name} ke-${index + 1} dari total ${total}`;
+        img.setAttribute('role', 'listitem');
+        img.tabIndex = 0;
+        img.style.userSelect = 'none';
+        img.addEventListener('click', () => {
+          stopAllAudio();
+          const audio = new Audio(obj.audio);
+          audio.volume = globalVolume;
+          playingAudios.push(audio);
+          audio.play();
+          audio.onended = () => {
+            playingAudios = playingAudios.filter(a => a !== audio);
+          };
+        });
+        img.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            stopAllAudio();
+            const audio = new Audio(obj.audio);
+            audio.volume = globalVolume;
+            playingAudios.push(audio);
+            audio.play();
+            audio.onended = () => {
+              playingAudios = playingAudios.filter(a => a !== audio);
+            };
+          }
+        });
+      }
+      return img;
+    }
+
+    function animateImagesIn(images) {
+      images.forEach((img, i) => {
+        setTimeout(() => {
+          img.classList.add('showing');
+        }, i * 50);
+      });
+    }
+
+    function animateImagesOut(images) {
+      return new Promise((resolve) => {
+        if (images.length === 0) {
+          resolve();
+          return;
+        }
+        let completed = 0;
+        images.forEach((img, i) => {
+          setTimeout(() => {
+            img.classList.remove('showing');
+            img.classList.add('hiding');
+            img.addEventListener('animationend', () => {
+              img.remove();
+              completed++;
+              if (completed === images.length) {
+                resolve();
+              }
+            }, { once: true });
+          }, i * 50);
+        });
+      });
+    }
+
+    async function renderImagesForNumberAnimated(count, obj, blurredCount) {
+      const imgs = [];
+      for (let i = 0; i < count; i++) {
+        const isBlurred = blurredCount > 0 && i >= count - blurredCount;
+        const blurIndex = i - (count - blurredCount);
+        const img = createImageElement(obj, i, count, isBlurred, blurIndex, blurredCount);
+        imgs.push(img);
+      }
+      imgs.forEach(img => imagesEl.appendChild(img));
+      animateImagesIn(imgs);
+      displayedImages = imgs;
+      return imgs;
+    }
+
+    async function updateImagesAfterSubtraction(newCount, obj) {
+      const currentCount = displayedImages.length;
+      if (newCount >= currentCount) return;
+
+      const toRemove = displayedImages.slice(newCount);
+      const toKeep = displayedImages.slice(0, newCount);
+
+      await animateImagesOut(toRemove);
+
+      displayedImages = toKeep;
+
+      displayedImages.forEach((img, i) => {
+        img.alt = `Gambar ${obj.name} ke-${i + 1} dari total ${newCount}`;
+        img.tabIndex = 0;
+        img.classList.remove('blurred');
+        img.style.pointerEvents = 'auto';
+        img.style.cursor = 'pointer';
+      });
+    }
+
+    async function playQuestionAudio(a, b) {
+      await playAudio('audio/soal.mp3');
+      if (a >= 0 && a <= 10) await playAudio(numberAudioMap[a]);
+      await playAudio('audio/kurang.mp3');
+      if (b >= 0 && b <= 10) await playAudio(numberAudioMap[b]);
+    }
+
+    async function playAudio(src) {
+      return new Promise((resolve) => {
+        stopAllAudio();
+        const audio = new Audio(src);
+        audio.volume = globalVolume;
+        playingAudios.push(audio);
+        audio.onended = () => {
+          playingAudios = playingAudios.filter(a => a !== audio);
+          resolve();
+        };
+        audio.onerror = () => {
+          playingAudios = playingAudios.filter(a => a !== audio);
+          resolve();
+        };
+        audio.play();
+      });
+    }
+
+    async function renderQuestion() {
+      stopAllAudio();
+      notificationEl.textContent = '';
+      notificationEl.classList.remove('text-green-600', 'text-red-600');
+      nextBtn.classList.remove('show');
+      answerInput.disabled = false;
+      answerInput.value = '';
+      answerInput.focus();
+      answeredCurrent = false;
+
+      currentQuestion = generateQuestion();
+
+      let firstObjIndex = Math.floor(Math.random() * objects.length);
+      let secondObjIndex;
+      do {
+        secondObjIndex = Math.floor(Math.random() * objects.length);
+      } while (secondObjIndex === firstObjIndex);
+
+      currentObjects = [objects[firstObjIndex], objects[secondObjIndex]];
+
+      questionEl.textContent = `Berapakah hasil dari ${currentQuestion.a} - ${currentQuestion.b} ?`;
+
+      clearImages();
+
+      displayedImages = await renderImagesForNumberAnimated(currentQuestion.a, currentObjects[0], 0);
+
+      await playQuestionAudio(currentQuestion.a, currentQuestion.b);
+
+      if (currentQuestion.b > 0) {
+        for (let i = currentQuestion.a - currentQuestion.b; i < currentQuestion.a; i++) {
+          const img = displayedImages[i];
+          if (img) {
+            img.classList.add('blurred');
+            img.style.pointerEvents = 'none';
+            img.style.cursor = 'default';
+            img.alt = `Gambar ${currentObjects[0].name} yang dikurangi ke-${i - (currentQuestion.a - currentQuestion.b) + 1} dari total ${currentQuestion.b}`;
+            img.tabIndex = -1;
+          }
+        }
+        await new Promise(r => setTimeout(r, 800));
+        await updateImagesAfterSubtraction(currentQuestion.diff, currentObjects[0]);
+      }
+    }
+
+    function generateQuestion() {
+      const a = Math.floor(Math.random() * (MAX_NUMBER + 1));
+      const b = Math.floor(Math.random() * (a + 1)); // b <= a
+      return { a, b, diff: a - b };
+    }
+
+    answerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (answeredCurrent) return; // Prevent multiple submits for same question
+      stopAllAudio();
+      const userAnswer = Number(answerInput.value);
+      answeredCurrent = true;
+      if (userAnswer === currentQuestion.diff) {
+        correctAnswers++;
+        notificationEl.textContent = '🎉 Jawaban benar! Selamat!';
+        notificationEl.classList.remove('text-red-600');
+        notificationEl.classList.add('text-green-600');
+      } else {
+        wrongAnswers++;
+        notificationEl.textContent = `❌ Jawaban salah. Jawaban yang benar adalah ${currentQuestion.diff}.`;
+        notificationEl.classList.remove('text-green-600');
+        notificationEl.classList.add('text-red-600');
+      }
+      answerInput.disabled = true;
+      nextBtn.classList.add('show');
+
+      // Show images for current question with blurred subtraction
+      clearImages();
+      displayedImages = await renderImagesForNumberAnimated(currentQuestion.a, currentObjects[0], currentQuestion.b);
+
+      if (userAnswer === currentQuestion.diff) {
+        await playAudio('audio/benar.mp3');
+      } else {
+        await playAudio('audio/salah.wav');
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      stopAllAudio();
+      questionCount++;
+      if (questionCount >= TOTAL_QUESTIONS) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    });
+
+    restartBtn.addEventListener('click', () => {
+      questionCount = 0;
+      correctAnswers = 0;
+      wrongAnswers = 0;
+      notificationEl.textContent = '';
+      notificationEl.classList.remove('text-green-600', 'text-red-600');
+      nextBtn.classList.remove('show');
+      answerInput.disabled = false;
+      answerInput.value = '';
+      clearImages();
+      resultScreen.classList.remove('show');
+      gameScreen.style.display = 'flex';
+      renderQuestion();
+    });
+
+    function showResult() {
+      gameScreen.style.display = 'none';
+      resultScreen.classList.add('show');
+      correctCountEl.innerHTML = `<i class="fas fa-check-circle"></i> Jawaban Benar: ${correctAnswers} dari ${TOTAL_QUESTIONS}`;
+      wrongCountEl.innerHTML = `<i class="fas fa-times-circle"></i> Jawaban Salah: ${wrongAnswers} dari ${TOTAL_QUESTIONS}`;
+      playResultAudio();
+    }
+
+    function playResultAudio() {
+      if(resultAudio){
+        resultAudio.pause();
+        resultAudio.currentTime = 0;
+      }
+      resultAudio = new Audio('audio/hasil.wav');
+      resultAudio.volume = globalVolume;
+      resultAudio.play();
+    }
+
+    // Voice button toggle popup
+    voiceButton.addEventListener('click', () => {
+      const isExpanded = voiceButton.getAttribute('aria-expanded') === 'true';
+      if (isExpanded) {
+        voicePopup.classList.remove('show');
+        voiceButton.setAttribute('aria-expanded', 'false');
+      } else {
+        voicePopup.classList.add('show');
+        voiceButton.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // Close popup if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!voiceButton.contains(e.target) && !voicePopup.contains(e.target)) {
+        voicePopup.classList.remove('show');
+        voiceButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Volume control functions
+    function setVolume(newVolume) {
+      globalVolume = Math.min(1, Math.max(0, newVolume));
+      // Update icon on voice button
+      if(globalVolume === 0){
+        voiceButton.innerHTML = '<i class="fas fa-volume-mute" aria-hidden="true"></i>';
+        voiceButton.setAttribute('aria-label', 'Suara dimatikan');
+      } else if(globalVolume <= 0.3){
+        voiceButton.innerHTML = '<i class="fas fa-volume-down" aria-hidden="true"></i>';
+        voiceButton.setAttribute('aria-label', 'Suara pelan');
+      } else {
+        voiceButton.innerHTML = '<i class="fas fa-volume-up" aria-hidden="true"></i>';
+        voiceButton.setAttribute('aria-label', 'Suara normal');
+      }
+    }
+
+    volumeUpBtn.addEventListener('click', () => {
+      setVolume(globalVolume + 0.2);
+      voicePopup.classList.remove('show');
+      voiceButton.setAttribute('aria-expanded', 'false');
+    });
+
+    volumeDownBtn.addEventListener('click', () => {
+      setVolume(globalVolume - 0.2);
+      voicePopup.classList.remove('show');
+      voiceButton.setAttribute('aria-expanded', 'false');
+    });
+
+    muteBtn.addEventListener('click', () => {
+      setVolume(0);
+      voicePopup.classList.remove('show');
+      voiceButton.setAttribute('aria-expanded', 'false');
+    });
+
+    // Initialize volume icon
+    setVolume(globalVolume);
+
+    // Initialize
+    questionCount = 0;
+    correctAnswers = 0;
+    wrongAnswers = 0;
+    answeredCurrent = false;
+
+    renderQuestion();
+  </script>
+</body>
+</html>

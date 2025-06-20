@@ -1,0 +1,407 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Animasi Interaktif Pengenalan Angka dan Belajar Berhitung</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap" rel="stylesheet" />
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: black;
+    }
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1.2s ease forwards;
+    }
+    .fade-in-up.delay-1 {
+      animation-delay: 0.3s;
+    }
+    .fade-in-up.delay-2 {
+      animation-delay: 0.6s;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    button:focus, a:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.6);
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, #1524fa, #00dbdb, #ff08ad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .text-stroke-black {
+      -webkit-text-stroke: 2px black;
+    }
+    /* Ensure video covers entire viewport without distortion */
+    video {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      min-width: 100vw;
+      min-height: 100vh;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      z-index: 0;
+    }
+    /* Audio control button styling */
+    #audio-control {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 20;
+      background-color: rgba(34,197,94,0.8);
+      border-radius: 9999px;
+      width: 3.5rem;
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #audio-control:hover {
+      background-color: rgba(34,197,94,1);
+    }
+    #audio-control i {
+      color: white;
+      font-size: 1.5rem;
+      pointer-events: none;
+    }
+    /* Popup container */
+    #volume-popup {
+      position: fixed;
+      bottom: 6.5rem;
+      right: 1.5rem;
+      z-index: 30;
+      background-color: rgba(34,197,94,0.9);
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(34,197,94,0.5), 0 4px 6px -2px rgba(34,197,94,0.3);
+      display: none;
+      flex-direction: column;
+      width: 10rem;
+      user-select: none;
+    }
+    #volume-popup button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-radius: 0.5rem;
+    }
+    #volume-popup button:hover, #volume-popup button:focus {
+      background-color: rgba(255,255,255,0.15);
+      outline: none;
+    }
+    /* Hidden initially for play button */
+    #play-button {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    #play-button.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      animation: bounceIn 0.8s ease forwards;
+    }
+    @keyframes bounceIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    /* Large initial play button container */
+    #initial-play-container {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.85);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    #initial-play-button {
+      background-color: #22c55e;
+      border-radius: 9999px;
+      padding: 2.5rem 3.5rem;
+      color: white;
+      font-weight: 900;
+      font-size: 3.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(34,197,94,0.7), 0 4px 6px -2px rgba(34,197,94,0.5);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      user-select: none;
+    }
+    #initial-play-button:hover, #initial-play-button:focus {
+      background-color: #16a34a;
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 15px 25px -3px rgba(22,163,74,0.8), 0 6px 10px -2px rgba(22,163,74,0.6);
+    }
+    #initial-play-button i {
+      font-size: 3.5rem;
+    }
+    /* Hide main content initially */
+    #main-content {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    #main-content.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="overflow-hidden relative">
+  <video autoplay muted loop playsinline>
+    <source src="/vidio/index.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  <audio id="opening-audio" preload="auto">
+    <source src="/audio/opening.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <audio id="background-audio" loop>
+    <source src="/audio/funny-kids.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <audio id="click-sound" preload="auto" volume="1.0">
+    <source src="/audio/button-funny.wav" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Initial large play button overlay -->
+  <div id="initial-play-container" role="button" tabindex="0" aria-label="Mulai animasi dan audio" aria-pressed="false">
+    <div id="initial-play-button">
+      <i class="fas fa-play"></i>
+      <span>Mulai</span>
+    </div>
+  </div>
+
+  <!-- Main content hidden initially -->
+  <div id="main-content" class="relative z-10 flex flex-col items-center justify-center w-full h-screen px-4 text-center">
+    <h1 class="fade-in-up delay-1 gradient-text text-stroke-black text-5xl sm:text-6xl md:text-7xl font-extrabold drop-shadow-lg select-none max-w-4xl mx-auto leading-relaxed" style="font-weight: 900; line-height: 1.5;">
+      AYO BELAJAR MENGENAL ANGKA DAN BERHITUNG<br /> 
+    </h1>
+    <a href="menu.html" aria-label="Play" id="play-button" class="mt-10 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-full px-8 py-4 flex items-center space-x-3 shadow-lg drop-shadow-lg transition focus:ring-4 focus:ring-green-400 select-none">
+      <i class="fas fa-play text-xl"></i>
+      <span class="text-xl font-semibold">mulai</span>
+    </a>
+  </div>
+
+  <button id="audio-control" aria-label="Toggle background music" aria-pressed="false" title="Toggle background music" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-volume-mute"></i>
+  </button>
+
+  <div id="volume-popup" role="menu" aria-label="Volume controls">
+    <button type="button" id="volume-up" role="menuitem" tabindex="0" aria-label="Increase volume">
+      <i class="fas fa-volume-up"></i> kencangkan Suara
+    </button>
+    <button type="button" id="volume-down" role="menuitem" tabindex="0" aria-label="Decrease volume">
+      <i class="fas fa-volume-down"></i> Pelankan Suara
+    </button>
+    <button type="button" id="volume-mute" role="menuitem" tabindex="0" aria-label="Mute volume">
+      <i class="fas fa-volume-mute"></i> sunyi
+    </button>
+  </div>
+
+  <script>
+    const openingAudio = document.getElementById('opening-audio');
+    const audio = document.getElementById('background-audio');
+    const audioControl = document.getElementById('audio-control');
+    const icon = audioControl.querySelector('i');
+    const clickSound = document.getElementById('click-sound');
+    const playButton = document.getElementById('play-button');
+    const volumePopup = document.getElementById('volume-popup');
+    const volumeUpBtn = document.getElementById('volume-up');
+    const volumeDownBtn = document.getElementById('volume-down');
+    const volumeMuteBtn = document.getElementById('volume-mute');
+    const initialPlayContainer = document.getElementById('initial-play-container');
+    const mainContent = document.getElementById('main-content');
+
+    audio.volume = 0.5;
+    openingAudio.volume = 0.7;
+
+    // Initially hide main content and play button inside it
+    playButton.classList.remove('show');
+    mainContent.classList.remove('show');
+
+    // Function to start opening audio and then background audio, show main content and play button
+    function startOpeningSequence() {
+      // Hide initial play overlay
+      initialPlayContainer.style.display = 'none';
+
+      // Show main content container
+      mainContent.classList.add('show');
+
+      // Play opening audio
+      openingAudio.play().catch(() => {
+        // Autoplay blocked, wait for user interaction
+      });
+
+      // When opening audio ends, play background audio and show the smaller play button with animation
+      openingAudio.onended = () => {
+        audio.play().then(() => {
+          icon.classList.remove('fa-volume-mute');
+          icon.classList.add('fa-volume-up');
+          audioControl.setAttribute('aria-pressed', 'true');
+        }).catch(() => {});
+        playButton.classList.add('show');
+      };
+    }
+
+    // Handle click or keyboard activation on initial play button
+    function handleInitialPlay() {
+      startOpeningSequence();
+      // Remove event listeners after first activation
+      initialPlayContainer.removeEventListener('click', handleInitialPlay);
+      initialPlayContainer.removeEventListener('keydown', initialPlayKeydown);
+    }
+    function initialPlayKeydown(e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        handleInitialPlay();
+      }
+    }
+
+    initialPlayContainer.addEventListener('click', handleInitialPlay);
+    initialPlayContainer.addEventListener('keydown', initialPlayKeydown);
+
+    // Toggle audio play/pause and icon for background audio only
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play();
+        icon.classList.remove('fa-volume-mute');
+        icon.classList.add('fa-volume-up');
+        audioControl.setAttribute('aria-pressed', 'true');
+      } else {
+        audio.pause();
+        icon.classList.remove('fa-volume-up');
+        icon.classList.add('fa-volume-mute');
+        audioControl.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    // Show/hide volume popup
+    function toggleVolumePopup() {
+      const isVisible = volumePopup.style.display === 'flex';
+      if (isVisible) {
+        volumePopup.style.display = 'none';
+        audioControl.setAttribute('aria-expanded', 'false');
+      } else {
+        volumePopup.style.display = 'flex';
+        audioControl.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Close popup if clicked outside
+    function handleClickOutside(event) {
+      if (!audioControl.contains(event.target) && !volumePopup.contains(event.target)) {
+        volumePopup.style.display = 'none';
+        audioControl.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    audioControl.addEventListener('click', () => {
+      toggleVolumePopup();
+    });
+
+    volumeUpBtn.addEventListener('click', () => {
+      if (audio.volume < 1) {
+        audio.volume = Math.min(1, audio.volume + 0.1);
+        if (audio.volume > 0) {
+          if (audio.paused) audio.play();
+          icon.classList.remove('fa-volume-mute');
+          icon.classList.add('fa-volume-up');
+          audioControl.setAttribute('aria-pressed', 'true');
+        }
+      }
+    });
+
+    volumeDownBtn.addEventListener('click', () => {
+      if (audio.volume > 0) {
+        audio.volume = Math.max(0, audio.volume - 0.1);
+        if (audio.volume === 0) {
+          audio.pause();
+          icon.classList.remove('fa-volume-up');
+          icon.classList.add('fa-volume-mute');
+          audioControl.setAttribute('aria-pressed', 'false');
+        }
+      }
+    });
+
+    volumeMuteBtn.addEventListener('click', () => {
+      audio.volume = 0;
+      audio.pause();
+      icon.classList.remove('fa-volume-up');
+      icon.classList.add('fa-volume-mute');
+      audioControl.setAttribute('aria-pressed', 'false');
+    });
+
+    // Close popup on outside click
+    document.addEventListener('click', handleClickOutside);
+
+    playButton.addEventListener('click', () => {
+      clickSound.volume = 1.0;
+      clickSound.currentTime = 0;
+      clickSound.play();
+    });
+
+    // Keyboard accessibility for popup buttons
+    volumePopup.addEventListener('keydown', (e) => {
+      const focusable = Array.from(volumePopup.querySelectorAll('button'));
+      let index = focusable.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        index = (index + 1) % focusable.length;
+        focusable[index].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        index = (index - 1 + focusable.length) % focusable.length;
+        focusable[index].focus();
+      } else if (e.key === 'Escape') {
+        volumePopup.style.display = 'none';
+        audioControl.setAttribute('aria-expanded', 'false');
+        audioControl.focus();
+      }
+    });
+  </script>
+</body>
+</html>
